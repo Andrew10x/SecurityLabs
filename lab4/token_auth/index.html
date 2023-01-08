@@ -136,12 +136,16 @@
             if (username) {
                 const mainHolder = document.getElementById("main-holder");
                 const loginHeader = document.getElementById("login-header");
+                const userInfoLink = document.createElement("a");
+                userInfoLink.href = "/userInfo";
+                userInfoLink.innerHTML = "User Info"
 
                 loginForm.remove();
                 loginErrorMsg.remove();
                 loginHeader.remove();
 
-                mainHolder.append(`Hello ${username}`);
+                mainHolder.append(`Hello, ${username}`);
+                mainHolder.append(userInfoLink);
                 logoutLink.style.opacity = 1;
             }
         });

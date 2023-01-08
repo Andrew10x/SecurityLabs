@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UserInfo</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <main id="main-holder">
+        <div id="userInfo">
+            <div id="picture">
+                <img id="img" />
+            </div>
+            <div id="name"></div>
+            <div id="nickname"></div>
+            <div id="userId"></div>
+            <div id="email"></div>
+        </div>
+        <a href="/">To main page</a>
+    </main>
+</body>
+
+
+<style>
+    html {
+        height: 100%;
+    }
+
+    body {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        display: grid;
+        justify-items: center;
+        align-items: center;
+        background-color: #3a3a3a;
+    }
+
+    #main-holder {
+        width: 50%;
+        height: 70%;
+        display: grid;
+        justify-items: center;
+        align-items: center;
+        background-color: white;
+        border-radius: 7px;
+        box-shadow: 0px 0px 5px 2px black;
+    }
+
+    #img {
+        margin: 0 auto;
+        display: flex;
+        width: 150px;
+    }
+
+    #picture {
+        margin-bottom: 30px;
+        margin-top: 50px;
+    }
+
+    #userInfo>div {
+        margin-top: 10px;
+    }
+</style>
+
+<script>
+
+    const session = sessionStorage.getItem("session");
+
+    let token;
+
+    try {
+        token = JSON.parse(session).access_token;
+    } catch (e) { }
+
+    if (token)
+        getData()
+    else
+        window.location.href = "/"
+
+    async function getData() {
+        const response = await fetch("/api/userInfo", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        const data = await response.json()
+        if (data && data.success) {
+            document.getElementById("img").src = data.user.picture;
+            document.getElementById("name").innerHTML = `<b>Name:</b> ${data.user.name}`;
+            document.getElementById("nickname").innerHTML = `<b>NickName:</b> ${data.user.nickname}`;
+            document.getElementById("userId").innerHTML = `<b>User Id:</b> ${data.user.user_id}`;
+            document.getElementById("email").innerHTML = `<b>Email:</b> ${data.user.email}`;
+        }
+        else {
+            window.location.href = "/"
+        }
+
+    }
+
+</script>
+
+</html>

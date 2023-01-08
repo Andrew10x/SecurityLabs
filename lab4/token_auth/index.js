@@ -2,11 +2,48 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
 const port = 3000;
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+async function checkJwt(req, res, next) {
+    try {
+      if (req.headers.authorization) {
+        const response = await axios.get("https://kpi.eu.auth0.com/pem");
+        const publicKey = await response.data;
+  
+        const token = req.headers.authorization.split(" ")[1];
+        const inf = jwt.verify(token, publicKey);
+        req.userSub = inf.sub;
+        next()
+      }
+    } catch (err) {
+      res.status(403).json({ success: false});
+    }
+  };
+
+  app.get("/userInfo", (req, res) => {
+    res.sendFile(path.join(__dirname + "/userInfo.html"));
+  });
+  
+  app.get("/api/userInfo", checkJwt, async (req, res) => {
+    const token = req.headers.authorization;
+  
+    const response = await axios.get(`https://kpi.eu.auth0.com/api/v2/users/${req.userSub}`, {
+      headers: {
+        Authorization: token,
+      },
+    });
+    const user = await response.data;
+    return res.json({
+      success: true,
+      user,
+    });
+  });
+  
 
 app.get("/", async (req, res) => {
   if (req.headers.authorization) {
